@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Selector - Career Guidance Tool</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the app container */
+        .card {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        .stream-result-card {
+            transition: all 0.5s ease-in-out;
+            transform: scale(1.02);
+            border-left: 8px solid #3b82f6; /* Blue border for emphasis */
+        }
+        /* Custom focus styles for the rating buttons */
+        input[type="radio"]:checked + label {
+            background-color: #3b82f6;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4);
+        }
+        /* Style for smooth transitions on buttons */
+        .btn-transition {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-transition:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6', // Blue
+                        secondary: '#10b981', // Emerald Green
+                        background: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <div id="app" class="w-full max-w-2xl bg-white rounded-xl p-8 md:p-12 card transition-all duration-500">
+        
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">Career Stream Selector</h1>
+            <!-- UPDATED to 30 Steps -->
+            <p class="text-lg text-gray-500 mt-2">Find Your Perfect Stream Match in 30 Steps</p>
+        </header>
+
+        <!-- Content Area: Initial/Questions/Result -->
+        <div id="content-area">
+            <!-- Initial Introduction -->
+            <div id="intro-screen">
+                <p class="text-gray-700 mb-6 text-center">Welcome! Our guidance approach combines science and market relevance to suggest the optimal academic stream for you.</p>
+                
+                <div class="grid grid-cols-1 gap-6 mb-10">
+                    <!-- Feature 1: Psychometric Profiling -->
+                    <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-primary">
+                        <h3 class="font-semibold text-primary text-lg">1. Psychometric Profiling (AIP)</h3>
+                        <p class="text-sm text-gray-600">We measure **Aptitude, Interest, and Personality** using validated indicators, providing the bedrock of your perfect stream match. <span class="text-xs text-gray-500 font-medium">(Scientific Step)</span></p>
+                    </div>
+
+                    <!-- Feature 2: Competency Alignment Matrix -->
+                    <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-primary">
+                        <h3 class="font-semibold text-primary text-lg">2. Competency Alignment</h3>
+                        <p class="text-sm text-gray-600">A detailed report that overlays your profile with specific stream needs, minimizing friction and maximizing study success. <span class="text-xs text-gray-500 font-medium">(Scientific Step)</span></p>
+                    </div>
+
+                    <!-- Feature 3: Real-Time Industry Context (USP) -->
+                    <div class="p-4 bg-emerald-50 rounded-lg border-l-4 border-secondary">
+                        <h3 class="font-semibold text-secondary text-lg">Real-Time Industry Context</h3>
+                        <p class="text-sm text-gray-600">Our model considers future skill requirements, ensuring your chosen path is relevant and high-potential upon graduation. <span class="text-xs text-gray-500 font-medium">(Extra USP)</span></p>
+                    </div>
+                </div>
+
+                <button onclick="startQuiz()" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-blue-600 btn-transition shadow-lg shadow-blue-200">
+                    Start 30-Question Assessment
+                </button>
+            </div>
+
+            <!-- Question Screen (Hidden by default) -->
+            <div id="quiz-screen" class="hidden">
+                <p id="question-index" class="text-sm font-medium text-primary mb-4"></p>
+                <h2 id="current-question" class="text-xl font-semibold text-gray-800 mb-6"></h2>
+                
+                <!-- Rating Scale -->
+                <div id="rating-scale" class="flex justify-between items-center bg-gray-50 p-4 rounded-xl shadow-inner">
+                    <span class="text-xs md:text-sm text-gray-500 w-1/5 text-left">Strongly Disagree</span>
+                    
+                    <div class="flex space-x-2 md:space-x-4">
+                        <!-- Rating 1-5 -->
+                        <div class="flex flex-col items-center">
+                            <input type="radio" id="rating1" name="rating" value="1" class="hidden" required>
+                            <label for="rating1" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full border-2 border-red-400 text-red-600 font-bold cursor-pointer transition-all duration-200">1</label>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="radio" id="rating2" name="rating" value="2" class="hidden">
+                            <label for="rating2" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full border-2 border-yellow-400 text-yellow-600 font-bold cursor-pointer transition-all duration-200">2</label>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="radio" id="rating3" name="rating" value="3" class="hidden">
+                            <label for="rating3" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full border-2 border-gray-400 text-gray-600 font-bold cursor-pointer transition-all duration-200">3</label>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="radio" id="rating4" name="rating" value="4" class="hidden">
+                            <label for="rating4" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full border-2 border-teal-400 text-teal-600 font-bold cursor-pointer transition-all duration-200">4</label>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="radio" id="rating5" name="rating" value="5" class="hidden">
+                            <label for="rating5" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full border-2 border-green-400 text-green-600 font-bold cursor-pointer transition-all duration-200">5</label>
+                        </div>
+                    </div>
+                    
+                    <span class="text-xs md:text-sm text-gray-500 w-1/5 text-right">Strongly Agree</span>
+                </div>
+                
+                <div class="mt-8 flex justify-between">
+                    <button onclick="prevQuestion()" id="prev-btn" class="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 btn-transition" disabled>
+                        Previous
+                    </button>
+                    <button onclick="nextQuestion()" id="next-btn" class="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-blue-600 btn-transition shadow-md shadow-blue-200">
+                        Next
+                    </button>
+                </div>
+
+                <p id="error-message" class="text-red-500 text-center mt-4 hidden">Please select a rating before proceeding.</p>
+            </div>
+
+            <!-- Result Screen (Hidden by default) -->
+            <div id="result-screen" class="hidden text-center">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-secondary mb-3">Your Recommended Stream</h2>
+                    <p class="text-gray-700">Based on your interests, aptitude alignment, and personality profile.</p>
+                </div>
+
+                <!-- Recommended Stream Card -->
+                <div id="recommended-stream-card" class="bg-white p-6 rounded-xl shadow-2xl mx-auto max-w-md stream-result-card">
+                    <p class="text-sm font-medium text-gray-500">Highest Alignment Score:</p>
+                    <h3 id="result-stream-name" class="text-4xl font-bold text-gray-900 mt-1 mb-4"></h3>
+                    <p id="result-stream-description" class="text-gray-600 mb-6"></p>
+                </div>
+
+                <!-- Dual Guidance USP -->
+                <div class="mt-10 p-6 bg-yellow-50 rounded-lg border-l-4 border-yellow-500 mx-auto max-w-md">
+                    <h3 class="font-bold text-lg text-yellow-700 mb-2">3. Human & AI Dual Guidance</h3>
+                    <p class="text-sm text-gray-700">The final choice is yours. Use this data, get instant feedback from an AI Career Guide, or seek empathetic advice from a **Certified Human Counsellor**.</p>
+                </div>
+
+                <button onclick="restartQuiz()" class="mt-8 px-6 py-2 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 btn-transition shadow-md">
+                    Restart Assessment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA AND INITIALIZATION ---
+
+        let currentQuestionIndex = 0;
+        let answers = [];
+        // UPDATED: Now 30 questions
+        const numQuestions = 30; 
+
+        const questions = [
+            {
+                text: "I find the proofs and formulas in my Math and Science classes (especially Physics) satisfying.",
+                weights: { 'SM': 1.5, 'SB': 0.5, 'CM': 0.8, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I am genuinely curious about how the human body works and enjoy practical Biology experiments.",
+                weights: { 'SM': 0.3, 'SB': 1.5, 'CM': 0.0, 'CNM': 0.0, 'H': 0.3 }
+            },
+            {
+                text: "I often find myself reading articles about stock markets, business ideas, or how companies make money.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 1.3, 'CNM': 1.3, 'H': 0.0 }
+            },
+            {
+                text: "I love reading and discussing history, current events, or different cultures and social issues.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.0, 'CNM': 0.5, 'H': 1.5 }
+            },
+            {
+                text: "I like to build things (physical or digital), debug technical issues, or figure out how gadgets work.",
+                weights: { 'SM': 1.5, 'SB': 0.3, 'CM': 0.5, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I am good at organizing and classifying detailed scientific or chemical information for study.",
+                weights: { 'SM': 0.5, 'SB': 1.2, 'CM': 0.0, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I enjoy presenting class projects, leading group discussions, or persuading others in a debate.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.8, 'CNM': 1.5, 'H': 1.0 }
+            },
+            {
+                text: "Analyzing poems, stories, or historical documents to understand hidden context and perspectives is easy for me.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.0, 'CNM': 0.3, 'H': 1.3 }
+            },
+            {
+                text: "I enjoy solving complex logical puzzles or math problems that require multiple steps.",
+                weights: { 'SM': 1.0, 'SB': 0.3, 'CM': 1.0, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I am drawn to career fields like Medicine, Veterinary science, or scientific research (Life Sciences).",
+                weights: { 'SM': 0.5, 'SB': 1.5, 'CM': 0.0, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I prefer practical, real-world application of formulas (like calculating profits) over abstract theory.",
+                weights: { 'SM': 0.5, 'SB': 0.0, 'CM': 1.2, 'CNM': 0.8, 'H': 0.0 }
+            },
+            {
+                text: "I spend free time expressing myself through writing, drawing, music, or other creative arts.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.0, 'CNM': 0.5, 'H': 1.3 }
+            },
+            {
+                text: "I prefer subjects with one right answer (like Math) over subjects that allow for multiple interpretations (like literature).",
+                weights: { 'SM': 1.3, 'SB': 0.8, 'CM': 1.0, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I would be interested in a career that involves working directly with patients or clients to help them.",
+                weights: { 'SM': 0.0, 'SB': 1.0, 'CM': 0.0, 'CNM': 0.5, 'H': 1.0 }
+            },
+            {
+                text: "I keep meticulous track of my personal spending, allowances, or save up for large purchases strategically.",
+                weights: { 'SM': 0.5, 'SB': 0.0, 'CM': 1.5, 'CNM': 0.5, 'H': 0.0 }
+            },
+            {
+                text: "I often question why social systems (like government, law, or community rules) are the way they are.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.0, 'CNM': 0.8, 'H': 1.5 }
+            },
+            {
+                text: "I have enjoyed or actively sought out opportunities to learn basic coding or programming.",
+                weights: { 'SM': 1.5, 'SB': 0.0, 'CM': 1.0, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I am more interested in leadership roles, managing projects, and organizing events than individual technical work.",
+                weights: { 'SM': 0.0, 'SB': 0.5, 'CM': 0.8, 'CNM': 1.3, 'H': 0.5 }
+            },
+            {
+                text: "I enjoy tasks that involve careful observation, classification, and memorization of small, precise details (e.g., in a lab).",
+                weights: { 'SM': 0.5, 'SB': 1.2, 'CM': 0.0, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I prefer English/Language and Social Science classes over Mathematics and Physical Sciences.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.0, 'CNM': 1.0, 'H': 1.5 }
+            },
+            // --- NEW 10 QUESTIONS FOR 30 TOTAL (Updated from previous version) ---
+            {
+                text: "I enjoy creating detailed schedules, budgeting my time, and planning complex school projects.",
+                weights: { 'SM': 0.3, 'SB': 0.3, 'CM': 1.2, 'CNM': 1.0, 'H': 0.5 }
+            },
+            {
+                text: "When I learn about a disease, I am more interested in the causes and treatment than the underlying physics.",
+                weights: { 'SM': 0.0, 'SB': 1.3, 'CM': 0.0, 'CNM': 0.0, 'H': 0.8 }
+            },
+            {
+                text: "I am interested in how psychological principles (like motivation and behavior) explain human actions.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.0, 'CNM': 0.5, 'H': 1.5 }
+            },
+            {
+                text: "I can easily understand complex graphs, charts, and statistical data presented in the news or class.",
+                weights: { 'SM': 1.0, 'SB': 0.5, 'CM': 1.0, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I find the structure of chemical compounds and reactions fascinating and can visualize them easily.",
+                weights: { 'SM': 0.8, 'SB': 1.0, 'CM': 0.0, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "I enjoy learning foreign languages or reading literature from different historical periods for fun.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.0, 'CNM': 0.3, 'H': 1.2 }
+            },
+            // --- REPLACED QUESTIONS START HERE (Indices 26-29) ---
+            {
+                text: "My favorite project involved creating a detailed business plan, market analysis, or managing a class fundraiser's finances.",
+                weights: { 'SM': 0.3, 'SB': 0.0, 'CM': 1.5, 'CNM': 1.2, 'H': 0.0 }
+            },
+            {
+                text: "I excelled most in projects that required building a physical model, coding a simple application, or designing an engineering solution.",
+                weights: { 'SM': 1.5, 'SB': 0.3, 'CM': 0.5, 'CNM': 0.0, 'H': 0.0 }
+            },
+            {
+                text: "The project I enjoyed most involved deep research, interviewing people, and writing a comprehensive report on a social or historical topic.",
+                weights: { 'SM': 0.0, 'SB': 0.0, 'CM': 0.0, 'CNM': 0.8, 'H': 1.5 }
+            },
+            {
+                text: "I found the most satisfaction in projects involving a biological experiment, dissection, or tracking data about natural phenomena (e.g., plant growth).",
+                weights: { 'SM': 0.5, 'SB': 1.5, 'CM': 0.0, 'CNM': 0.0, 'H': 0.0 }
+            }
+        ];
+
+        const streamDescriptions = {
+            'SM': { 
+                name: 'Science with Mathematics (PCM)', 
+                description: 'The foundation for Engineering, Architecture, Computer Science, and Technological innovation. Requires strong logical-analytical aptitude and abstract problem-solving skills.' 
+            },
+            'SB': { 
+                name: 'Science with Biology (PCB)', 
+                description: 'The primary pathway to Medicine (MBBS/BDS), Biotechnology, Pharmacy, and Life Sciences research. Requires high curiosity in biological systems, observation, and meticulous detail orientation.' 
+            },
+            'CM': { 
+                name: 'Commerce with Mathematics', 
+                description: 'The route to Finance, Investment Banking, Actuarial Science, and professional courses like CA/CFA. Combines strong business acumen with essential quantitative and data analysis skills.' 
+            },
+            'CNM': { 
+                name: 'Commerce without Mathematics', 
+                description: 'Focuses on Management, Marketing, Entrepreneurship, Human Resources, and Business Law. Ideal for those with strong communication, leadership, and organizational interests in a business context.' 
+            },
+            'H': { 
+                name: 'Humanities/Arts', 
+                description: 'Opens doors to Law, Civil Services, Journalism, Psychology, Design, and Creative Arts. Ideal for those passionate about society, culture, human behavior, critical thinking, and communication.' 
+            },
+        };
+
+        // --- UI CONTROL FUNCTIONS ---
+
+        function startQuiz() {
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentQuestionIndex = 0;
+            answers = Array(numQuestions).fill(null);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Display question text and index
+            const q = questions[currentQuestionIndex];
+            document.getElementById('current-question').textContent = q.text;
+            document.getElementById('question-index').textContent = `Question ${currentQuestionIndex + 1} of ${numQuestions}`;
+
+            // Reset radio buttons
+            document.querySelectorAll('input[name="rating"]').forEach(radio => {
+                radio.checked = false;
+            });
+            document.getElementById('error-message').classList.add('hidden');
+
+            // Pre-select saved answer if available
+            const savedAnswer = answers[currentQuestionIndex];
+            if (savedAnswer !== null) {
+                const radio = document.getElementById(`rating${savedAnswer}`);
+                if (radio) radio.checked = true;
+            }
+
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+            const nextBtn = document.getElementById('next-btn');
+            if (currentQuestionIndex === numQuestions - 1) {
+                nextBtn.textContent = 'Get Result';
+                nextBtn.classList.remove('bg-primary');
+                nextBtn.classList.add('bg-secondary');
+                nextBtn.classList.remove('hover:bg-blue-600');
+                nextBtn.classList.add('hover:bg-emerald-600');
+            } else {
+                nextBtn.textContent = 'Next';
+                nextBtn.classList.add('bg-primary');
+                nextBtn.classList.remove('bg-secondary');
+                nextBtn.classList.add('hover:bg-blue-600');
+                nextBtn.classList.remove('hover:bg-emerald-600');
+            }
+        }
+
+        function nextQuestion() {
+            const selectedRadio = document.querySelector('input[name="rating"]:checked');
+            if (!selectedRadio) {
+                document.getElementById('error-message').classList.remove('hidden');
+                return;
+            }
+
+            // Save the answer (rating value is 1-5)
+            const rating = parseInt(selectedRadio.value);
+            answers[currentQuestionIndex] = rating;
+
+            // Check if it's the last question
+            if (currentQuestionIndex === numQuestions - 1) {
+                showResult();
+                return;
+            }
+
+            // Move to the next question
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            // Calculate the scores and determine the recommended stream
+            const recommendedStream = calculateResult();
+            
+            // Update the result UI
+            const desc = streamDescriptions[recommendedStream];
+            document.getElementById('result-stream-name').textContent = desc.name;
+            document.getElementById('result-stream-description').textContent = desc.description;
+        }
+
+        function restartQuiz() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('intro-screen').classList.remove('hidden');
+            currentQuestionIndex = 0;
+            answers = [];
+        }
+
+        // --- CORE LOGIC ---
+
+        function calculateResult() {
+            let scores = {
+                'SM': 0, 'SB': 0, 'CM': 0, 'CNM': 0, 'H': 0
+            };
+
+            for (let i = 0; i < questions.length; i++) {
+                const q = questions[i];
+                const rating = answers[i] || 0; // Use 0 if somehow null
+
+                // Apply the rating multiplied by the stream's weight for that question
+                // (Rating of 1-5 maps to a scaled score based on weight)
+                scores['SM'] += rating * q.weights['SM'];
+                scores['SB'] += rating * q.weights['SB'];
+                scores['CM'] += rating * q.weights['CM'];
+                scores['CNM'] += rating * q.weights['CNM'];
+                scores['H'] += rating * q.weights['H'];
+            }
+
+            // Find the stream with the highest score
+            let maxScore = -1;
+            let recommendedStream = 'H'; // Default to Humanities as a fallback
+
+            for (const stream in scores) {
+                // console.log(`${stream}: ${scores[stream].toFixed(2)}`); // Debugging line
+                if (scores[stream] > maxScore) {
+                    maxScore = scores[stream];
+                    recommendedStream = stream;
+                } else if (scores[stream] === maxScore) {
+                    // Simple tie-breaker: prioritize SM > SB > CM > CNM > H if scores are equal
+                    const priority = ['SM', 'SB', 'CM', 'CNM', 'H'];
+                    if (priority.indexOf(stream) < priority.indexOf(recommendedStream)) {
+                        recommendedStream = stream;
+                    }
+                }
+            }
+            
+            return recommendedStream;
+        }
+
+        // Initialize the app view on load
+        window.onload = function() {
+            // Nothing to initialize on load, leaving the intro screen visible
+        };
+    </script>
+</body>
+</html>
